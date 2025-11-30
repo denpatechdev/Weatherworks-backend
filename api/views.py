@@ -3,6 +3,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login
 from app.models import Comment, Like
 from api import tools
 
@@ -87,3 +88,16 @@ def like_comment(req, comment_id: int) -> Response:
             return Response({'message': 'Comment already not liked.'})
     
     return Response()
+
+@api_view(['POST'])
+def login_user(req):
+    username = req.data.get('username')
+    password = req.data.get('password')
+
+    user = authenticate(req, username=username, password=password)
+
+    if user is not None:
+        login(req, user)
+        return Response({'message': f'Succesfully logged in as {username}.'})
+    else:
+        return Response({'message': 'Invalid credentials.'})

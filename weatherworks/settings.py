@@ -42,7 +42,9 @@ INSTALLED_APPS = [
     'app',
     'api',
     'rest_framework',
-    #'corsheaders',
+    'rest_framework.authtoken',
+    'corsheaders'
+
 ]
 
 MIDDLEWARE = [
@@ -54,6 +56,13 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication'
+    ]
+}
 
 ROOT_URLCONF = 'weatherworks.urls'
 

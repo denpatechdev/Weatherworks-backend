@@ -2,7 +2,16 @@ from django.contrib import admin
 from django.urls import path
 from . import views
 
+
 urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('weather/', views.get_weather, name='get_weather'),
+    path('comments/<str:area>/post/', views.create_comment, name='create_comment'),
+    path('comments/<str:area>/', views.get_comments, name='get_comments'),
+    path('comments/<int:comment_id>/delete/', views.delete_comment, name='delete_comment'),
+    path('comments/<int:comment_id>/like/', views.like_comment, name='like_comment'),
+    path('login/', views.login_user, name='login_user'),
+    path('register/', views.register_user, name='register_user'),
     path('admin/', admin.site.urls),
     path('weather/', views.get_weather, name='get_weather'),
 ]

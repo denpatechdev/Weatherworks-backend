@@ -7,5 +7,6 @@ urlpatterns = [
     path('comments/<str:area>/', views.get_comments, name='get_comments'),
     path('comments/<int:comment_id>/delete/', views.delete_comment, name='delete_comment'),
     path('comments/<int:comment_id>/like/', views.like_comment, name='like_comment'),
-    path('login/', views.login_user, name='login_user')
+    path('login/', views.login_user, name='login_user'),
+    path('register/', views.register_user, name='register_user')
 ]

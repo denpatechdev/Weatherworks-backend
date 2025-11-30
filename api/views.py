@@ -3,11 +3,12 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from app.models import Comment, Like
 from api import tools
 
-# Create your views here.
+# TODO: add comments
+
 @api_view(['GET'])
 def get_comments(req, area: str) -> Response:
     comments = Comment.objects.filter(area=area)
@@ -118,3 +119,11 @@ def login_user(req):
         return Response({'message': f'Succesfully logged in as {username}.'})
     else:
         return Response({'message': 'Invalid credentials.'}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def logout_user(req):
+    if req.user.is_authenticated:
+        logout(req)
+        return Response({'message': 'Succesfully logged out'})
+    else:
+        return Response({'message': 'Already not logged in.'}, status=status.HTTP_400_BAD_REQUEST)

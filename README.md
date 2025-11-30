@@ -4,4 +4,5 @@ Weatherworks is a weather application with social features to help understand we
 
 # Credits
 [Abdul Rafea](https://github.com/Abdul-Rafea) - Frontend
+
 [denpatech](https://github.com/denpatechdev), [XTCooper](https://github.com/XTCooper11) - Backend

@@ -12,6 +12,24 @@ from api import tools
 # TODO: add comments
 
 @api_view(['GET'])
+def get_weather(request):
+    # Get parameters from the URL query string
+    lat = request.GET.get('lat')
+    lon = request.GET.get('lon')
+    units = request.GET.get('units', 'metric')
+    
+    if not lat or not lon:
+        return Response({'error': 'Latitude and longitude are required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Call your function with the parameters
+    data = currentWeatherData(lat, lon, units)
+    
+    if data:
+        return Response(data)  # Remove safe=False
+    else:
+        return Response({'error': 'Location not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
 def get_comments(req, area: str) -> Response:
     comments = Comment.objects.filter(area=area)
     comments_arr = []

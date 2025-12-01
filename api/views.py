@@ -1,4 +1,4 @@
-from django.http import JsonResponse
+from datetime import datetime, timedelta
 from .weatherData_io import currentWeatherData, forecastData, geocodingData
 from django.shortcuts import render
 from rest_framework import status
@@ -70,32 +70,39 @@ def get_forecast(request):
 
 @api_view(['GET'])
 def get_comments(req, area: str) -> Response:
-    comments = Comment.objects.filter(area=area)
+    one_day_ago = datetime.now() - timedelta(days=1)
+    comments = Comment.objects.filter(area=area, created_at__gt=one_day_ago)
     comments_arr = []
     for c in comments:
         comments_arr.append({
             'id': c.pk,
             'area': c.area,
+            'cur_area': c.cur_area,
             'contents': c.contents,
             'ip': c.ip,
+            'created_at': c.created_at.timestamp(),
             'likes': Like.objects.filter(comment=c).count()
         })
     return Response({'comments': comments_arr})
 
 @api_view(['POST'])
 def create_comment(req, area: str) -> Response:
+    if req.data.get('cur_area') is None or len(req.data.get('cur_area')) < 1:
+        return Response({'message': 'cur_area field is empty or null'}, status=status.HTTP_400_BAD_REQUEST)
     if area is None or len(area) < 1:
-        return Response({'message': 'Area field is empty or null'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'area field is empty or null'}, status=status.HTTP_400_BAD_REQUEST)
     contents = req.data.get('contents')
     if contents is None or len(contents) < 1:
-        return Response({'message': 'Contents field is empty or null.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'contents field is empty or null.'}, status=status.HTTP_400_BAD_REQUEST)
     ip = tools.get_ip(req)
-    comment = Comment.objects.create(area=area, contents=contents, ip=ip)
+    comment = Comment.objects.create(area=area, contents=contents, ip=ip, cur_area=req.data.get('cur_area'))
     return Response({
         'id': comment.pk,
         'area': area,
+        'cur_area': req.data.get('cur_area'),
         'contents': contents,
         'ip': ip,
+        'created_at': comment.created_at.timestamp(),
         'likes': 0
     })
 

@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from .weatherData_io import currentWeatherData
+from .weatherData_io import currentWeatherData, forecastData, geocodingData
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
@@ -25,6 +25,43 @@ def get_weather(request):
     
     # Call currentWeatherData with the parameters
     data = currentWeatherData(lat, lon, units)
+    
+    if data:
+        return Response(data)
+    else:
+        return Response({'error': 'Location not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+def get_location(request):
+    # Get parameters from the URL query string
+    lat = request.GET.get('lat')
+    lon = request.GET.get('lon')
+    
+    if not lat or not lon:
+        return Response({'message': 'Latitude and longitude are required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Call currentWeatherData with the parameters
+    data = geocodingData(lat, lon)
+    
+    if data:
+        return Response(data)
+    else:
+        return Response({'error': 'Location not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+def get_forecast(request):
+    # Get parameters from the URL query string
+    lat = request.GET.get('lat')
+    lon = request.GET.get('lon')
+    units = request.GET.get('units', 'metric')
+    
+    if not lat or not lon:
+        return Response({'message': 'Latitude and longitude are required'}, status=status.HTTP_400_BAD_REQUEST)
+    if units not in ['imperial', 'metric', 'standard']:
+        return Response({'message': 'Invalid unit format. Valid formats are: \'imperial\', \'metric\', and \'standard\''})
+    
+    # Call forecastData with the parameters
+    data = forecastData(lat, lon, units)
     
     if data:
         return Response(data)

@@ -5,7 +5,9 @@ from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('weather/', views.get_weather, name='get_weather'),
+    path('weather/current/', views.get_weather, name='get_weather'),
+    path('weather/forecast/', views.get_forecast, name='get_forecast'),
+    path('weather/location/', views.get_location, name='get_location'),
     path('comments/<str:area>/post/', views.create_comment, name='create_comment'),
     path('comments/<str:area>/', views.get_comments, name='get_comments'),
     path('comments/<int:comment_id>/delete/', views.delete_comment, name='delete_comment'),

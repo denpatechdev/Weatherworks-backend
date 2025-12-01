@@ -19,13 +19,15 @@ def get_weather(request):
     units = request.GET.get('units', 'metric')
     
     if not lat or not lon:
-        return Response({'error': 'Latitude and longitude are required'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'Latitude and longitude are required'}, status=status.HTTP_400_BAD_REQUEST)
+    if units not in ['imperial', 'metric', 'standard']:
+        return Response({'message': 'Invalid unit format. Valid formats are: \'imperial\', \'metric\', and \'standard\''})
     
-    # Call your function with the parameters
+    # Call currentWeatherData with the parameters
     data = currentWeatherData(lat, lon, units)
     
     if data:
-        return Response(data)  # Remove safe=False
+        return Response(data)
     else:
         return Response({'error': 'Location not found'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -72,18 +74,17 @@ def delete_comment(req, comment_id: int) -> Response:
             comment[0].delete()
             return Response(deleted_comment_data)
         else:
-            return Response({'message': 'Comment not found'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Comment not found'}, status=status.HTTP_404_NOT_FOUND)
     else:
         return Response({'message': 'You do not have authorization to delete comments.'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST', 'DELETE'])
 def like_comment(req, comment_id: int) -> Response:
-
     ip = tools.get_ip(req)
     comment = Comment.objects.get(pk=comment_id) if Comment.objects.filter(pk=comment_id).exists() else None
     if req.method == 'POST':
         if not comment:
-            return Response({'message': 'Comment not found.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Comment not found.'}, status=status.HTTP_404_NOT_FOUND)
         if not Like.objects.filter(comment=comment, ip=ip).exists():
             like = Like.objects.create(comment=comment, ip=ip)
             return Response({
@@ -95,7 +96,7 @@ def like_comment(req, comment_id: int) -> Response:
             return Response({'message': 'Comment already liked.'}, status=status.HTTP_400_BAD_REQUEST)
     elif req.method == 'DELETE':
         if not comment:
-            return Response({'message': 'Comment not found.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Comment not found.'}, status=status.HTTP_404_NOT_FOUND)
         if Like.objects.filter(comment=comment, ip=ip).exists():
             like = Like.objects.get(comment=comment, ip=ip)
             deleted_like_data = {
@@ -125,7 +126,7 @@ def register_user(req):
         login(req, user)
         return Response({'message': f'User {username} successfully registered.'})
     else:
-        return Response({'message': f'An error occured during registration'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': f'An error occured during registration'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST'])
 def login_user(req):
